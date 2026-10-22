@@ -1,38 +1,113 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# 湖财人 · Git 忽略规则（交付包根）
+#
+# 本仓库是「交付包」的一部分。交付包本身以 ZIP + SHA 清单分发，
+# 完整性由 verify-handoff.cjs 保证；而本 Git 仓库只承载**源码与部署模板**。
+#
+# 因此下面分三类排除：交付/校验产物、包外工作区文档、运行与构建产物。
+# 注意：source/ 下另有一份 .gitignore 处理源码树内部的忽略，二者按层级叠加生效。
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
+# ── 一、交付与校验产物（不随源码入库）─────────────────────────
+# runtime/ 是 61.9 MB 的已验收运行包（tar.gz），属二进制构建产物；
+# handoff-manifest.json 的 SHA 清单锁定了它，单独上传源码会使清单失效，
+# 故三者一并排除，需要时从交付包另行获取。
+/runtime/
+/handoff-manifest.json
+/verify-handoff.cjs
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# ── 二、包外工作区文档（分析产物，非交付内容）─────────────────
+/docs/
+/WIKI/
+/AGENTS.md
+/CLAUDE.md
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# ── 二之二、Agent 工作区配置（仅本机，严禁入库）────────────────
+# 参考 YunYigong 的组织方式（AGENTS.md 作索引 → CLAUDE.md 常驻规则 →
+# .agents/ 按需加载的 SOP）。但本仓库与 YunYigong 不同：那边 .agents/ 是
+# 入库的，这里明确不入库——SOP 与经验记录会随会话频繁变动，且含本机路径、
+# 服务器信息等只属于本地环境的内容。
+/.agents/
+/.tools/
+/.claude/
+/.codex/
+/.serena/
+/.beads/
+/.opencode/
+/.mimocode/
 
-### VS Code ###
-.vscode/
+# ── 二之三、学校运维资料（含真实凭据，严禁入库）────────────────
+# 学校运维提供的服务器/VPN 资料含生产服务器 root 密码、数据库 root 密码与
+# VPN 账号。本仓库托管在 Gitee（私有），但**私有仓库不等于安全存储**：
+# 一旦 push，凭据即进入远端历史，此后删除文件无法撤回——只能改写历史并轮换
+# 全部口令。本仓库已有先例：cb3a57e 提交过 26MB 生产库导出（含真实密码哈希
+# 与身份 HMAC），清理需改写历史，见 CLAUDE.md「已知未修复项」。
+#
+# 首选做法是**不要把它们放进仓库**——放到 WIKI/（包外）或仓库外的目录。
+# 下面的规则是兜底，防止误 `git add`。
+/2026校友会系统.txt
+/零信任远程访问VPN使用手册*.docx
 
-### Mac OS ###
+# 兜底：根目录的办公文档一律不入库。
+# WHY 用扩展名而非文件名关键词：曾按「服务器/数据库/VPN/密码/凭据」枚举，
+# 实测 `运维凭据.xlsx` 直接漏网——关键词永远追不上实际命名。而交付包根目录
+# 本就不应存放文档（说明类在 deployment/，其余属包外），按扩展名排除没有误伤。
+/*.txt
+/*.docx
+/*.doc
+/*.xlsx
+/*.xls
+/*.pdf
+/*.csv
+
+# 小程序上传私钥（微信公众平台下载，等同于发布权限，绝不入库）
+*.key
+!*.key.example
+
+# ── 三、运行与构建产物 ────────────────────────────────────────
+node_modules/
+dist/
+unpackage/
+.local-runtime/
+.hbuilderx/
+
+# 本地测试工具链（在内网/离线受限环境下于工作区内自举的 pnpm 与缓存，
+# 用于复跑 server/admin/test 测试；不属于交付内容，可随时删除重建）
+/_tools/
+/_pnpm-store/
+/_pnpm-cache/
+/_pnpm-state/
+/_pnpm-config/
+/_pnpm-home/
+/_npm-cache/
+
+# 本地数据库导入产物（含生产数据，绝不入库、绝不交付）
+/_dbimport/
+# 生产库导出（含 passwordHash / idCard / phone / mobile 等真实数据），任何情况下不入库。
+# 历史包袱：hufe-production-full.sql 曾被误提交（cb3a57e，且该提交是所有分支的共同祖先），
+# 现已用 `git rm --cached` 停止跟踪并本地保留；如需彻底从远端清除须重写全部分支历史。
+*.sql
+
+# ── 四、系统与编辑器杂项 ──────────────────────────────────────
 .DS_Store
+__MACOSX/
+*.log
+Thumbs.db
+*.swp
+*~
+
+# 微信开发者工具本地工程文件（未被本仓库跟踪过，不入库）
+# project.private.config.json 按微信官方约定即为「私有覆盖」文件，更不应提交；
+# project.config.json 含真实小程序 AppID，如需纳入交付请另行在受控渠道交接。
+/project.config.json
+/project.private.config.json
+
+# ── 五、环境变量（模板保留，真实配置不入库）────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.production.example
+
+# ── 六、macOS 冲突副本形态（历史包袱，防复发）──────────────────
+# 形如 `service 2.js`、`ARCHITECTURE 2.md`。不要写成「文件名含空格即失败」——
+# source/server/src/maps/assets/fonts/Noto Sans Regular/ 是含空格的合法资源目录。
+* 2.*

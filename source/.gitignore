@@ -1,0 +1,16 @@
+node_modules/
+.local-runtime/
+dist/
+unpackage/
+.hbuilderx/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+server/data/*.json
+server/data/media/
+server/data/chat/
+server/data/audit-requests/
+server/data/ip-region/
+!server/data/.gitkeep

@@ -1,0 +1,39 @@
+# 统一行尾策略（必须保留）
+#
+# 背景：Windows 上 git 默认 core.autocrlf=true，检出后会把工作区文本文件写成 CRLF，
+# 而本仓库的部署链依赖 LF：
+#   1) scripts/*.sh 会在 Linux 上以 `$'\r': command not found` 失败；
+#   2) scripts/mysql-build-dependencies.mjs 的 lockServerVersions 以「整行全等」匹配
+#      `  server:`，CRLF 下行尾带 \r 永远匹配不到，直接抛
+#      「pnpm lock 缺少 server importer」，使 Linux 生产依赖构建不可用。
+# 因此显式声明 LF，不依赖各机器的 autocrlf 设置。
+
+* text=auto eol=lf
+
+# 明确要求 LF 的文本类型
+*.sh      text eol=lf
+*.bash    text eol=lf
+*.cjs     text eol=lf
+*.mjs     text eol=lf
+*.js      text eol=lf
+*.json    text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+*.md      text eol=lf
+*.txt     text eol=lf
+*.conf    text eol=lf
+*.example text eol=lf
+
+# 二进制资源禁止行尾转换
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.webp    binary
+*.ico     binary
+*.xdb     binary
+*.woff    binary
+*.woff2   binary
+*.ttf     binary
+*.tar.gz  binary
+*.zip     binary

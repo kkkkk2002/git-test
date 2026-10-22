@@ -1,0 +1,14 @@
+{
+  "name": "hufe-miniprogram-ci",
+  "version": "1.0.0",
+  "private": true,
+  "description": "湖财人小程序 CI 上传工具（绕过微信开发者工具 Linux 移植版的上传缺陷）",
+  "type": "commonjs",
+  "scripts": {
+    "upload": "node 上传小程序.mjs",
+    "upload:no-build": "node 上传小程序.mjs --no-build"
+  },
+  "dependencies": {
+    "miniprogram-ci": "^2.1.31"
+  }
+}
